@@ -8,6 +8,7 @@ const { basicDetails } = require("../utils/user.utils");
 // Models import
 const User = require("../models/user.model");
 const Conversation = require("../models/conversation.model");
+const Message = require("../models/message.model");
 
 // JWT
 const { verifyToken } = require("../utils/auth.utils");
@@ -45,6 +46,7 @@ exports.initialize = (server) => {
           if (!user) return;
 
           socket.auth = true;
+          socket.userId = user._id;
 
           // Restore authenticated socket to its namespace
           if (_.findWhere(nsp.sockets, { id: socket.id })) {
@@ -64,14 +66,32 @@ exports.initialize = (server) => {
       if (!socket.auth) socket.disconnect("unauthenticate");
     }, 1000);
 
-    // socket.on(events.MESSAGE, ({ message, conversationId }) => {
-    // 	try{
+    socket.on(events.MESSAGE, async ({ message, conversationId }) => {
+      try {
+        let conversation = await Conversation.findOne({ _id: conversationId });
+        if (!conversation) return;
 
-    // 	} catch(err){
-    // 		console.log(err)
-    // 	}
+        if (!conversation.members.includes(socket.userId)) return;
 
-    // });
+        const newMessage = await Message.create({
+          ...message,
+          conversation: conversationId,
+        });
+
+        conversation = await Conversation.findByIdAndUpdate(conversationId, {
+          $push: { messages: newMessage },
+        });
+
+        conversation.members.forEach((member) => {
+          member !== socket.userId &&
+            socket
+              .to(member)
+              .emit(events.MESSAGE, { conversationId, message: newMessage });
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    });
 
     socket.on(events.DISCONNECT, () => {
       delete users[socket.id];

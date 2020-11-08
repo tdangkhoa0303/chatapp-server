@@ -33,13 +33,15 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       trim: true,
-      defualt:
+      default:
         "https://grantland.com/wp-content/uploads/2015/07/minions_behind.jpg?w=1280",
     },
-    conversations: {
-      type: [mongoose.Schema.ObjectId],
-      ref: "Conversation",
-    },
+    conversations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Conversation",
+      },
+    ],
     socketId: {
       type: String,
       trim: true,

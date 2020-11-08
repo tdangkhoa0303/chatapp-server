@@ -5,7 +5,16 @@ module.exports.createUser = catchAsync((req, res, next) => {});
 
 module.exports.searchUsers = catchAsync(async (req, res, next) => {
   const { q } = req.query;
-  const users = User.find({ fullName: { $regex: q, $option: "i" } });
+  const users = await User.find({
+    $or: [
+      {
+        firstName: { $regex: new RegExp(`${q}`, "i") },
+      },
+      {
+        lastName: { $regex: new RegExp(`.${q}.`, "i") },
+      },
+    ],
+  });
   res.status(200).json({
     status: "success",
     data: {

@@ -17,17 +17,18 @@ const { isAuth } = require("./middlewares/auth.middleware");
 //Routes
 const authRoute = require("./routes/auth.route");
 const messengerRoute = require("./routes/messenger.route");
+const userRoute = require("./routes/user.route");
 
 const app = express();
 const server = app.listen(PORT, () => console.log(`Hello from ${PORT}`));
-
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 // Body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser(process.env.SIGNED_SECRET));
 app.use(express.static("./public"));
+
+app.use(cors({ origin: true, credentials: true }));
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
@@ -41,6 +42,7 @@ Socket.initialize(server);
 
 app.use("/auth", authRoute);
 app.use("/messenger", isAuth, messengerRoute);
+app.use("/user", isAuth, userRoute);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

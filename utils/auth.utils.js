@@ -5,6 +5,7 @@ module.exports.generateToken = async (user, secretSignature, tokenLife) => {
     const userData = {
       email: user.email,
       name: user.name,
+      fullName: user.fullName,
       avatarUrl: user.avatarUrl,
       _id: user._id,
     };

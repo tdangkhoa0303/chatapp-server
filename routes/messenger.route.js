@@ -2,6 +2,8 @@ const router = require("express").Router();
 const {
   getConversations,
   getSingleConversation,
+  getConversationById,
+  seenConversation,
 } = require("../controllers/messenger.controller");
 /*
 - GET /                                 10 recent conversations
@@ -10,8 +12,12 @@ const {
 - DELETE /:id                           delete a conversation with id
   
 */
-router.post("/", getConversations);
+router.get("/", getConversations);
 
 router.get("/:q", getSingleConversation);
+
+router.post("/id", getConversationById);
+
+router.post("/conversation", seenConversation);
 
 module.exports = router;
