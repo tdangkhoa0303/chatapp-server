@@ -1,5 +1,6 @@
 const { verifyToken } = require("../utils/auth.utils");
-const AppError = require("../utils/appError");
+const AppError = require("../utils/AppError");
+
 const catchAsync = require("../utils/catchAsync");
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
