@@ -83,6 +83,7 @@ const setToken = async (res, user) => {
 
   const cookieOptions = {
     maxAge: process.env.REFRESH_TOKEN_LIFE,
+    sameSite: "none",
   };
   res.cookie("isLogin", true, cookieOptions);
   res.cookie("refreshToken", refreshToken, {
