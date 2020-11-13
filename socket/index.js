@@ -40,7 +40,7 @@ exports.initialize = (server) => {
 
   nsp.on(events.CONNECT, (socket) => {
     socket.auth = false;
-
+    console.log("a1", socket);
     socket.on(events.AUTHENTICATE, async ({ token }) => {
       console.log("a", token);
       if (token) {
