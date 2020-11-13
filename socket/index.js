@@ -42,6 +42,7 @@ exports.initialize = (server) => {
     socket.auth = false;
 
     socket.on(events.AUTHENTICATE, async ({ token }) => {
+      console.log("a", token);
       if (token) {
         try {
           const {
@@ -61,7 +62,6 @@ exports.initialize = (server) => {
             socket.join(user._id);
             nsp.emit(events.UPDATE, onlineUsers());
           }
-          console.log("a");
         } catch (err) {
           socket.auth = false;
           console.log(err);
