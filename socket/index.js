@@ -25,16 +25,17 @@ const onlineUsers = () => {
 exports.initialize = (server) => {
   const io = socketIO(server, {
     cors: {
-      origin: "https://chatwithkeen.netlify.app/",
+      origin: "https://chatwithkeen.netlify.app",
       credentials: true,
     },
+    cookie: false,
   });
   const nsp = io.of("/messenger");
 
   // Prevent unauthenticated socket from emitting events
 
   nsp.on(events.CONNECT, (socket) => {
-    if (!socket) delete nsp.connected[socket.id];
+    if (!socket.auth) delete nsp.connected[socket.id];
   });
 
   nsp.on(events.CONNECT, (socket) => {

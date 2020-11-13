@@ -3,8 +3,8 @@ const AppError = require("../utils/AppError");
 const handleCastErrorDB = (error) =>
   new AppError(`Invalid ${error.path}: ${error.value}.`, 400);
 
-const sendErrorProd = ({ isOperational, status, message }, res) => {
-  if (isOperational) {
+const sendErrorProd = ({ operational, status, message }, res) => {
+  if (operational) {
     res.status(statusCode).json({
       status: status,
       message: message,

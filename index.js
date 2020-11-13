@@ -28,7 +28,9 @@ app.use(bodyParser.json());
 app.use(cookieParser(process.env.SIGNED_SECRET));
 app.use(express.static("./public"));
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({ origin: "https://chatwithkeen.netlify.app", credentials: true })
+);
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
