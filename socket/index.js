@@ -35,7 +35,6 @@ exports.initialize = (server) => {
 
   nsp.on(events.CONNECT, (socket) => {
     if (!socket) delete nsp.connected[socket.id];
-    console.log("a");
   });
 
   nsp.on(events.CONNECT, (socket) => {
@@ -61,6 +60,7 @@ exports.initialize = (server) => {
             socket.join(user._id);
             nsp.emit(events.UPDATE, onlineUsers());
           }
+          console.log("a");
         } catch (err) {
           socket.auth = false;
           console.log(err);
