@@ -32,17 +32,15 @@ exports.initialize = (server) => {
   });
   const nsp = io.of("/messenger");
 
-  // Prevent unauthenticated socket from emitting events
+  io.on(events.CONNECT, (socket) => {
+    console.log(socket);
+  });
 
-  // nsp.on(events.CONNECT, (socket) => {
-  //   if (!socket.auth) delete nsp.connected[socket.id];
-  // });
+  nsp.on(events.MESSAGE, (socket) => console.log("a"));
 
   nsp.on(events.CONNECT, (socket) => {
-    console.log("dasd");
     socket.auth = false;
     socket.on(events.AUTHENTICATE, async ({ token }) => {
-      console.log("authenticate: ", token);
       if (token) {
         try {
           const {

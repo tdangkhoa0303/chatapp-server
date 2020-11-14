@@ -29,7 +29,10 @@ app.use(cookieParser(process.env.SIGNED_SECRET));
 app.use(express.static("./public"));
 
 app.use(
-  cors({ origin: "https://chatwithkeen.netlify.app", credentials: true })
+  cors({
+    origin: "https://chatwithkeen.netlify.app" /*"http://localhost:3000"*/,
+    credentials: true,
+  })
 );
 
 mongoose.connect(process.env.MONGO_URL, {
