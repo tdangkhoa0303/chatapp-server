@@ -39,6 +39,7 @@ exports.initialize = (server) => {
   // });
 
   nsp.on(events.CONNECT, (socket) => {
+    console.log("dasd");
     socket.auth = false;
     socket.on(events.AUTHENTICATE, async ({ token }) => {
       console.log("authenticate: ", token);
