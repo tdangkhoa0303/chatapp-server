@@ -34,15 +34,14 @@ exports.initialize = (server) => {
 
   // Prevent unauthenticated socket from emitting events
 
-  nsp.on(events.CONNECT, (socket) => {
-    if (!socket.auth) delete nsp.connected[socket.id];
-  });
+  // nsp.on(events.CONNECT, (socket) => {
+  //   if (!socket.auth) delete nsp.connected[socket.id];
+  // });
 
   nsp.on(events.CONNECT, (socket) => {
     socket.auth = false;
-    console.log("a1", socket);
     socket.on(events.AUTHENTICATE, async ({ token }) => {
-      console.log("a", token);
+      console.log("authenticate: ", token);
       if (token) {
         try {
           const {
