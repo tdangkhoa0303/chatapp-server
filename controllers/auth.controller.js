@@ -86,7 +86,7 @@ const setToken = async (res, user) => {
     sameSite: "none",
     secure: true,
   };
-  res.cookie("isLogin", true, cookieOptions);
+
   res.cookie("refreshToken", refreshToken, {
     ...cookieOptions,
     signed: true,
@@ -100,6 +100,7 @@ const setToken = async (res, user) => {
         ...basicDetails(user),
         token: accessToken,
       },
+      refreshTTL: process.env.REFRESH_TOKEN_LIFE,
     },
   });
 };

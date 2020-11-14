@@ -11,7 +11,7 @@ module.exports.isAuth = catchAsync(async (req, res, next) => {
     try {
       const decoded = await verifyToken(tokenFromClient, accessTokenSecret);
       req.jwtDecoded = decoded;
-      console.log(req.signedCookies);
+
       next();
     } catch (err) {
       next(new AppError("Unauthorized.", 401));
