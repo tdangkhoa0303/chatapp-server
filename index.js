@@ -20,7 +20,6 @@ const messengerRoute = require("./routes/messenger.route");
 const userRoute = require("./routes/user.route");
 
 const app = express();
-const server = app.listen(PORT, () => console.log(`Hello from ${PORT}`));
 
 // Body parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,7 +29,7 @@ app.use(express.static("./public"));
 
 app.use(
   cors({
-    origin: "https://chatwithkeen.netlify.app" /*"http://localhost:3000"*/,
+    origin: process.env.ORIGIN,
     credentials: true,
   })
 );
@@ -43,6 +42,7 @@ mongoose.connect(process.env.MONGO_URL, {
   dbName: "Chatapp",
 });
 
+const server = app.listen(PORT, () => console.log(`Hello from ${PORT}`));
 Socket.initialize(server);
 
 app.use("/auth", authRoute);
