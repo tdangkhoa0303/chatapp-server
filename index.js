@@ -30,7 +30,7 @@ app.use(express.static("./public"));
 
 app.use(
   cors({
-    origin: "https://chatwithkeen.netlify.app" /*"http://localhost:3000"*/,
+    origin: process.env.ORIGIN || "*",
     credentials: true,
   })
 );

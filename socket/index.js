@@ -25,7 +25,7 @@ const onlineUsers = () => {
 exports.initialize = (server) => {
   const io = socketIO(server, {
     cors: {
-      origin: "https://chatwithkeen.netlify.app",
+      origin: process.env.ORIGIN,
       credentials: true,
     },
     cookie: false,
