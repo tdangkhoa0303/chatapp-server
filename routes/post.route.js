@@ -3,8 +3,13 @@ const {
   getPosts,
   deletePost,
   createPost,
-  editPost,
   reactPost,
 } = require("../controllers/post.controller");
 
-router.get("/");
+router.get("/", getPosts);
+
+router.post("/", createPost);
+
+router.get("/react/", reactPost);
+
+router.patch("/:id", deletePost);

@@ -3,6 +3,22 @@ const Post = require("../models/post.model");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
+module.exports.getPosts = catchAsync(async (req, res, next) => {
+  const { p: page = 1 } = req.query;
+  const perPage = process.env.PER_PAGE || 10;
+
+  const posts = await Post.find()
+    .limit(10)
+    .skip((page - 1) * perPage);
+
+  res.status(200).json({
+    status: "succes",
+    data: {
+      posts,
+    },
+  });
+});
+
 module.exports.createPost = catchAsync(async (req, res, next) => {
   const { caption } = req.body;
   const authorId = req.jwtDecoded.data._id;
