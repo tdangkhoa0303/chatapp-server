@@ -24,7 +24,6 @@ const onlineUsers = () => {
 };
 
 exports.initialize = (server) => {
-<<<<<<< HEAD
   const io = socketIO(server, {
     cors: {
       origin: process.env.ORIGIN,
@@ -32,9 +31,6 @@ exports.initialize = (server) => {
     },
     cookie: false,
   });
-=======
-  const io = socketIO(server, {});
->>>>>>> 040f595bf12f0e6ebbdc812ad4fe63195279acc8
   const nsp = io.of("/messenger");
 
   io.on(events.CONNECT, (socket) => {});

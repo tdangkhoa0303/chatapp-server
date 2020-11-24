@@ -4,7 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
 module.exports.addComment = catchAsync(async (req, res, next) => {
-  const { postId, comment } = req.body;
+  let { postId, comment } = req.body;
   const authorId = req.jwtDecoded.data._id;
 
   // Validate comment content
@@ -13,12 +13,13 @@ module.exports.addComment = catchAsync(async (req, res, next) => {
   const post = await Post.findById(postId);
   if (!post) return new AppError("Invalid post", 404);
 
-  const comment = Comment.create({
+  comment = await Comment.create({
     ...comment,
+    post: postId,
     author: authorId,
   });
 
-  await Post.findByIdAndUpdate(postId, { comments: { $push: comment._id } });
+  await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
   res.status(201).json({
     status: "success",

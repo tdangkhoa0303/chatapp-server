@@ -10,3 +10,5 @@ router.post("/", addComment);
 router.get("/react/", reactComment);
 
 router.patch("/:id", deleteComment);
+
+module.exports = router;

@@ -6,10 +6,14 @@ const {
   reactPost,
 } = require("../controllers/post.controller");
 
+const multer = require("../middlewares/multer.middleware");
+
 router.get("/", getPosts);
 
-router.post("/", createPost);
+router.post("/", multer.array("images"), createPost);
 
 router.get("/react/", reactPost);
 
 router.patch("/:id", deletePost);
+
+module.exports = router;

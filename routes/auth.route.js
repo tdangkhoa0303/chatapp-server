@@ -6,10 +6,11 @@ const {
 } = require("../controllers/auth.controller");
 
 const router = express.Router();
+const multer = require("../middlewares/multer.middleware");
 
 router.route("/login").post(logIn);
 
-router.route("/signup").post(signUp);
+router.post("/signup", multer.single("avatar"), signUp);
 
 router.route("/refreshToken").post(refreshToken);
 
