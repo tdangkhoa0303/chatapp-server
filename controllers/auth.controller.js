@@ -6,7 +6,7 @@ const { uploadImage, deleteImage } = require("../utils/media.utils");
 
 const catchAsync = require("../utils/catchAsync");
 const { generateToken, verifyToken } = require("../utils/auth.utils");
-const { basicDetails } = require("../utils/user.utils");
+const { basicDetails, getNotifications } = require("../utils/user.utils");
 const AppError = require("../utils/AppError");
 
 const accessTokenLife = process.env.ACCESS_TOKEN_LIFE;
@@ -45,26 +45,22 @@ module.exports.signUp = catchAsync(async (req, res, next) => {
 });
 
 module.exports.logIn = catchAsync(async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    let user = await User.findOne({ email }).populate({
-      path: "avatar",
-      select: "url",
-    });
+  let user = await User.findOne({ email }).populate({
+    path: "avatar",
+    select: "url",
+  });
 
-    if (!user || !(await bcrypt.compare(password, user.password)))
-      return next(
-        new AppError(
-          "The email address or password is incorrect. Please retry again.",
-          403
-        )
-      );
+  if (!user || !(await bcrypt.compare(password, user.password)))
+    return next(
+      new AppError(
+        "The email address or password is incorrect. Please retry again.",
+        403
+      )
+    );
 
-    return setToken(res, user);
-  } catch (err) {
-    console.log(err);
-  }
+  return setToken(res, user);
 });
 
 module.exports.refreshToken = catchAsync(async (req, res, next) => {
@@ -96,6 +92,8 @@ const setToken = async (res, user) => {
 
   await Token.create({ refreshToken, accessToken });
 
+  const notifications = await getNotifications(user);
+
   const cookieOptions = {
     maxAge: process.env.REFRESH_TOKEN_LIFE,
     // sameSite: "none",
@@ -116,6 +114,7 @@ const setToken = async (res, user) => {
         token: accessToken,
       },
       refreshTTL: process.env.REFRESH_TOKEN_LIFE,
+      notifications,
     },
   });
 };

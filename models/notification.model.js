@@ -1,4 +1,6 @@
+const { request } = require("express");
 const mongoose = require("mongoose");
+const { on } = require("./user.model");
 
 const NotificationSchema = new mongoose.Schema(
   {
@@ -8,9 +10,21 @@ const NotificationSchema = new mongoose.Schema(
       required: true,
     },
 
-    content: { type: String, required: true, trim: true },
+    action: { type: String, required: true, trim: true },
 
     status: { type: Boolean, required: true, default: false },
+
+    to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    // If action is PEOPLE type, action url will be the author profile
+    path: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
@@ -22,3 +36,5 @@ const Notification = mongoose.model(
 );
 
 module.exports = Notification;
+
+// PEOPLE type: actions like follow, send follow request, so on.

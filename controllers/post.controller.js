@@ -1,8 +1,10 @@
 const Comment = require("../models/comment.model");
 const Post = require("../models/post.model");
+const Notification = require("../models/notification.model");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { uploadImage } = require("../utils/media.utils");
+const mongoose = require("mongoose");
 
 module.exports.getPosts = catchAsync(async (req, res, next) => {
   const { p: page = 1 } = req.query;
@@ -85,15 +87,28 @@ module.exports.reactPost = catchAsync(async (req, res, next) => {
 
     if (!post) return new AppError("Invalid request params", 400);
 
-    const likes = new Set(post.likes);
-    console.log(likes, user._id);
-    if (likes.has(user._id)) likes.delete(user._id);
-    else likes.add(user._id);
-    console.log(likes);
+    // Check if user's liked this post yet
+    let likes = post.likes;
+    const index = likes.findIndex((id) => id.toString() === user._id);
+    if (index >= 0)
+      likes = [...likes.slice(0, index), ...likes.slice(index + 1)];
+    else {
+      likes.push(user._id);
 
+      // Add new notification to post's author
+      if (user._id !== post.author.toString())
+        await Notification.create({
+          to: post.author,
+          author: user._id,
+          action: "liked your post.",
+          path: post._id,
+        });
+    }
+    console.log(likes);
     await Post.findByIdAndUpdate(postId, {
-      likes: Array.from(likes),
+      likes,
     });
+
     res.status(200).json({
       status: "success",
     });
