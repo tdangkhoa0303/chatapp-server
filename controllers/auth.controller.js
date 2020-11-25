@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const Token = require("../models/token.model");
 
+const { uploadImage, deleteImage } = require("../utils/media.utils");
+
 const catchAsync = require("../utils/catchAsync");
 const { generateToken, verifyToken } = require("../utils/auth.utils");
 const { basicDetails } = require("../utils/user.utils");
@@ -13,8 +15,15 @@ const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 module.exports.signUp = catchAsync(async (req, res, next) => {
-  let { email, lastName, firstName, password } = req.body;
+  let { email, lastName, firstName, password, bio, nickName } = req.body;
   const saltRounds = 10;
+
+  const path = req.file.path;
+
+  const media = await uploadImage(path, "avatars");
+
+  const fs = require("fs");
+  fs.unlinkSync(path);
 
   password = await bcrypt.hash(password, saltRounds);
   const user = await User.create({
@@ -22,6 +31,9 @@ module.exports.signUp = catchAsync(async (req, res, next) => {
     lastName,
     firstName,
     password,
+    bio,
+    nickName,
+    avatar: media._id,
   });
 
   res.status(201).json({
@@ -36,7 +48,10 @@ module.exports.logIn = catchAsync(async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate({
+      path: "avatar",
+      select: "url",
+    });
 
     if (!user || !(await bcrypt.compare(password, user.password)))
       return next(

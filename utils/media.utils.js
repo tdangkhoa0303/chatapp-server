@@ -1,19 +1,17 @@
 const cloudinary = require("cloudinary").v2;
 const Media = require("../models/media.model");
 
-result = await cloudinary.uploader.upload(path, {
-  folder: "Coders-x/Covers/",
-});
-
 module.exports.uploadImage = async (path, folder) => {
   const { secure_url, public_id } = await cloudinary.uploader.upload(path, {
-    folder: `Chatapp/${folder}`,
+    folder: `Instee/${folder}`,
   });
 
   const media = await Media.create({
-    secure_url,
+    url: secure_url,
     public_id,
   });
+
+  console.log(media);
 
   return media;
 };

@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+
 const cors = require("cors");
 
 const AppError = require("./utils/AppError");
@@ -18,6 +19,8 @@ const { isAuth } = require("./middlewares/auth.middleware");
 const authRoute = require("./routes/auth.route");
 const messengerRoute = require("./routes/messenger.route");
 const userRoute = require("./routes/user.route");
+const postRoute = require("./routes/post.route");
+const socialRoute = require("./routes/social.route");
 
 const app = express();
 
@@ -48,6 +51,8 @@ Socket.initialize(server);
 app.use("/auth", authRoute);
 app.use("/messenger", isAuth, messengerRoute);
 app.use("/user", isAuth, userRoute);
+app.use("/post", isAuth, postRoute);
+app.use("/social", isAuth, socialRoute);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

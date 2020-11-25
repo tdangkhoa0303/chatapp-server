@@ -8,6 +8,7 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.23.0",
@@ -16,6 +17,7 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.9",
+    "multer": "^1.4.2",
     "socket.io": "^2.3.0",
     "underscore": "^1.11.0"
   },

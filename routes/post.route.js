@@ -3,8 +3,17 @@ const {
   getPosts,
   deletePost,
   createPost,
-  editPost,
   reactPost,
 } = require("../controllers/post.controller");
 
-router.get("/");
+const multer = require("../middlewares/multer.middleware");
+
+router.get("/", getPosts);
+
+router.post("/", multer.array("images"), createPost);
+
+router.get("/react/", reactPost);
+
+router.patch("/:id", deletePost);
+
+module.exports = router;

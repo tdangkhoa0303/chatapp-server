@@ -26,15 +26,24 @@ const userSchema = new mongoose.Schema(
       },
     },
 
+    nickName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    bio: {
+      type: String,
+      trim: true,
+    },
+
     password: {
       type: String,
       require: [true, "Password is requied."],
     },
     avatar: {
-      type: String,
-      trim: true,
-      default:
-        "https://grantland.com/wp-content/uploads/2015/07/minions_behind.jpg?w=1280",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
     },
     conversations: [
       {

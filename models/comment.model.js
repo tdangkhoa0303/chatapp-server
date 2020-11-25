@@ -9,9 +9,7 @@ const CommentSchema = new mongoose.Schema(
       required: true,
     },
     content: { type: String, trim: true, required: true },
-    likes: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    ],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

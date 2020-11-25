@@ -6,7 +6,7 @@ module.exports.generateToken = async (user, secretSignature, tokenLife) => {
       email: user.email,
       name: user.name,
       fullName: user.fullName,
-      avatarUrl: user.avatarUrl,
+      avatar: user.avatar,
       _id: user._id,
     };
 
