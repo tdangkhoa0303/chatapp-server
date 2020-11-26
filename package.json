@@ -8,7 +8,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@material-ui/lab": "^4.0.0-alpha.56",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.23.0",
