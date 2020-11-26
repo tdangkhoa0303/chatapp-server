@@ -1,5 +1,8 @@
 const catchAsync = require("../utils/catchAsync");
 const User = require("../models/user.model");
+const factory = require("../factory");
+const AppError = require("../utils/AppError");
+const { basicDetails } = require("../utils/user.utils");
 
 module.exports.searchUsers = catchAsync(async (req, res, next) => {
   const { q } = req.query;
@@ -19,4 +22,26 @@ module.exports.searchUsers = catchAsync(async (req, res, next) => {
       users,
     },
   });
+});
+
+module.exports.getProfile = catchAsync(async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    const user = await factory.queryUser(q);
+    if (!user) return new AppError("User not found", 404);
+
+    const posts = await factory.getPosts(1, user._id);
+
+    res.status(200).json({
+      status: "sucess",
+      data: {
+        user: {
+          ...basicDetails(user),
+          posts,
+        },
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });

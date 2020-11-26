@@ -5,36 +5,13 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { uploadImage } = require("../utils/media.utils");
 const mongoose = require("mongoose");
+const factory = require("../factory");
 
 module.exports.getPosts = catchAsync(async (req, res, next) => {
-  const { p: page = 1 } = req.query;
-  const perPage = process.env.PER_PAGE || 10;
-
   try {
-    const posts = await Post.find()
-      .limit(10)
-      .skip((page - 1) * perPage)
-      .populate([
-        {
-          path: "images",
-          select: "url",
-        },
-        {
-          path: "comments",
-          populate: {
-            path: "author",
-            select: "fullName _id nickName avatar firstName lastName",
-          },
-        },
-        {
-          path: "author",
-          select: "fullName _id nickName avatar firstName lastName",
-          populate: {
-            path: "avatar",
-            select: "url",
-          },
-        },
-      ]);
+    const { p: page = 1 } = req.query;
+
+    const posts = await factory.getPosts();
     res.status(200).json({
       status: "succes",
       data: {
@@ -46,36 +23,64 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
   }
 });
 
+module.exports.getPost = catchAsync(async (req, res, next) => {
+  const { id } = req.query;
+
+  const post = await Post.findById(id).populate([
+    {
+      path: "images",
+      select: "url",
+    },
+    {
+      path: "comments",
+      populate: {
+        path: "author",
+        select: "fullName _id nickName avatar firstName lastName",
+      },
+    },
+    {
+      path: "author",
+      select: "fullName _id nickName avatar firstName lastName",
+      populate: {
+        path: "avatar",
+        select: "url",
+      },
+    },
+  ]);
+  res.status(200).json({
+    status: "success",
+    data: {
+      post,
+    },
+  });
+});
+
 module.exports.createPost = catchAsync(async (req, res, next) => {
-  try {
-    const { caption, id } = req.body;
-    const user = req.jwtDecoded.data;
-    const paths = req.files.map((file) => file.path);
+  const { caption, id } = req.body;
+  const user = req.jwtDecoded.data;
+  const paths = req.files.map((file) => file.path);
 
-    const medias = await Promise.all(
-      paths.map((path) => uploadImage(path, `posts/${id}`))
-    );
+  const medias = await Promise.all(
+    paths.map((path) => uploadImage(path, `posts/${id}`))
+  );
 
-    const fs = require("fs");
-    paths.forEach((path) => fs.unlinkSync(path));
+  const fs = require("fs");
+  paths.forEach((path) => fs.unlinkSync(path));
 
-    // Validate comment content
-    if (!caption) return new AppError("Invalid post", 400);
+  // Validate comment content
+  if (!caption) return new AppError("Invalid post", 400);
 
-    const post = await Post.create({
-      id: id,
-      caption: caption,
-      author: user._id,
-      images: medias,
-    });
+  const post = await Post.create({
+    id: id,
+    caption: caption,
+    author: user._id,
+    images: medias,
+  });
 
-    res.status(201).json({
-      status: "success",
-      data: { post },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+  res.status(201).json({
+    status: "success",
+    data: { post },
+  });
 });
 
 module.exports.reactPost = catchAsync(async (req, res, next) => {

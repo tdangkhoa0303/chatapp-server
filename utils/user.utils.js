@@ -4,8 +4,8 @@ const User = require("../models/user.model");
 const mongoose = require("mongoose");
 
 const basicDetails = (user) => {
-  const { _id, name, email, avatar, fullName } = user;
-  return { _id, name, email, avatar, fullName };
+  const { _id, name, email, avatar, fullName, bio, nickName } = user;
+  return { _id, name, email, avatar, fullName, bio, nickName };
 };
 
 const getNotifications = async (user, page = 1) => {
