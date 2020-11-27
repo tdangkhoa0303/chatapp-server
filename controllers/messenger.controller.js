@@ -20,6 +20,10 @@ module.exports.getConversations = catchAsync(async (req, res, next) => {
         {
           path: "members",
           select: "fullName _id email avatar firstName lastName",
+          populate: {
+            path: "avatar",
+            select: "url",
+          },
         },
         { path: "messages" },
       ]);
@@ -43,6 +47,10 @@ module.exports.getSingleConversation = catchAsync(async (req, res, next) => {
       {
         path: "members",
         select: "fullName _id email avatar firstName lastName",
+        populate: {
+          path: "avatar",
+          select: "url",
+        },
       },
       { path: "messages" },
     ],
