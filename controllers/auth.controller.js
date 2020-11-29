@@ -3,11 +3,12 @@ const User = require("../models/user.model");
 const Token = require("../models/token.model");
 
 const { uploadImage, deleteImage } = require("../utils/media.utils");
-
 const catchAsync = require("../utils/catchAsync");
 const { generateToken, verifyToken } = require("../utils/auth.utils");
-const { basicDetails, getNotifications } = require("../utils/user.utils");
+const { basicDetails } = require("../utils/user.utils");
 const AppError = require("../utils/AppError");
+
+const { getNotifications, getConversations } = require("../factory");
 
 const accessTokenLife = process.env.ACCESS_TOKEN_LIFE;
 const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE;
@@ -92,28 +93,36 @@ const setToken = async (res, user) => {
 
   await Token.create({ refreshToken, accessToken });
 
-  const notifications = await getNotifications(user);
+  try {
+    const [notifications, conversations] = await Promise.all([
+      getNotifications(user),
+      getConversations(user),
+    ]);
 
-  const cookieOptions = {
-    maxAge: process.env.REFRESH_TOKEN_LIFE,
-    ...(process.env.LOCAL ? {} : { sameSite: "none", secure: true }),
-  };
+    const cookieOptions = {
+      maxAge: process.env.REFRESH_TOKEN_LIFE,
+      ...(process.env.LOCAL ? {} : { sameSite: "none", secure: true }),
+    };
 
-  res.cookie("refreshToken", refreshToken, {
-    ...cookieOptions,
-    signed: true,
-    httpOnly: true,
-  });
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      signed: true,
+      httpOnly: true,
+    });
 
-  return res.status(200).json({
-    status: "success",
-    data: {
-      user: {
-        ...basicDetails(user),
-        token: accessToken,
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user: {
+          ...basicDetails(user),
+          token: accessToken,
+        },
+        refreshTTL: process.env.REFRESH_TOKEN_LIFE,
+        notifications,
+        conversations,
       },
-      refreshTTL: process.env.REFRESH_TOKEN_LIFE,
-      notifications,
-    },
-  });
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };

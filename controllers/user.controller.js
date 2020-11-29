@@ -15,7 +15,9 @@ module.exports.searchUsers = catchAsync(async (req, res, next) => {
         lastName: { $regex: new RegExp(`.${q}.`, "i") },
       },
     ],
-  }).select("fullName _id email avatar firstName lastName");
+  })
+    .populate({ path: "avatar", select: "url" })
+    .select("fullName _id email avatar firstName lastName");
   res.status(200).json({
     status: "success",
     data: {

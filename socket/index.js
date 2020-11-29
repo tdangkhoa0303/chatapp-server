@@ -31,7 +31,7 @@ exports.initialize = (server) => {
     if (!socket.auth) {
       delete nsp.connected[socket.id];
     }
-
+    console.log("A");
     socket.on(events.AUTHENTICATE, async ({ auth: token }) => {
       if (token) {
         try {
@@ -45,19 +45,18 @@ exports.initialize = (server) => {
               select: "url",
             })
           );
+
           if (!user) return;
 
           socket.auth = true;
           socket.userId = user._id;
 
           // Restore authenticated socket to its namespace
-
           if (_.findWhere(nsp.sockets, { id: socket.id })) {
             nsp.connected[socket.id] = socket;
             users[socket.id] = user;
             socket.join(user._id);
             nsp.emit(events.UPDATE, users);
-            socket.emit(events.UPDATE, users);
           }
         } catch (err) {
           console.log(err);

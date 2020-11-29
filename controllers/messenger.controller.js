@@ -2,41 +2,20 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const Conversation = require("../models/conversation.model");
 const User = require("../models/user.model");
-
+const { getConversations } = require("../factory");
 module.exports.getConversations = catchAsync(async (req, res, next) => {
-  try {
-    const perPage = 10;
-    const page = req.query.p || 1;
+  const page = req.query.p || 1;
+  const user = req.jwtDecoded.data;
 
-    if (page < 1) return res.status(200).json([]);
+  if (page < 1) return res.status(200).json([]);
+  const conversations = await getConversations(user, page);
 
-    const conversations = await Conversation.find({
-      members: req.jwtDecoded.data._id,
-    })
-      .limit(perPage)
-      .skip(perPage * (page - 1))
-      .sort({ updatedAt: -1 })
-      .populate([
-        {
-          path: "members",
-          select: "fullName _id email avatar firstName lastName",
-          populate: {
-            path: "avatar",
-            select: "url",
-          },
-        },
-        { path: "messages" },
-      ]);
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        conversations,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+  res.status(200).json({
+    status: "success",
+    data: {
+      conversations,
+    },
+  });
 });
 
 module.exports.getSingleConversation = catchAsync(async (req, res, next) => {

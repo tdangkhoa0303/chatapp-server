@@ -3,7 +3,7 @@ const Notification = require("../models/notification.model");
 const Post = require("../models/post.model");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
-const { getNotifications } = require("../utils/user.utils");
+const { getNotifications } = require("../factory");
 
 module.exports.addComment = catchAsync(async (req, res, next) => {
   try {
@@ -90,7 +90,7 @@ module.exports.fetchNotifications = catchAsync(async (req, res, next) => {
 
   const user = req.jwtDecoded.data;
 
-  const notifications = getNotifications(user, page);
+  const notifications = await getNotifications(user, page);
 
   res.status(200).json({
     status: "succes",
