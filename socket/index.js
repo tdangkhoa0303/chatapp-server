@@ -17,8 +17,10 @@ const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
 let users = {};
 
-exports.initialize = (server) => {
-  const io = socketIO(server, {
+let io;
+
+const initialize = (server) => {
+  io = socketIO(server, {
     cors: {
       origin: true,
       credentials: true,
@@ -95,3 +97,5 @@ exports.initialize = (server) => {
     });
   });
 };
+
+module.exports = { io, initialize };
