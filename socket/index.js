@@ -19,19 +19,18 @@ let users = {};
 
 exports.initialize = (server) => {
   const io = socketIO(server, {
-    cookie: false,
+    cors: {
+      origin: true,
+      credentials: true,
+    },
   });
   const nsp = io.of("/messenger");
 
   nsp.on(events.CONNECT, (socket) => {
     setTimeout(() => {
       if (!socket.auth) socket.disconnect("unauthenticate");
-    }, 10000);
+    }, 1000);
 
-    if (!socket.auth) {
-      delete nsp.connected[socket.id];
-    }
-    console.log("A");
     socket.on(events.AUTHENTICATE, async ({ auth: token }) => {
       if (token) {
         try {
@@ -50,14 +49,12 @@ exports.initialize = (server) => {
 
           socket.auth = true;
           socket.userId = user._id;
-
           // Restore authenticated socket to its namespace
-          if (_.findWhere(nsp.sockets, { id: socket.id })) {
-            nsp.connected[socket.id] = socket;
-            users[socket.id] = user;
-            socket.join(user._id);
-            nsp.emit(events.UPDATE, users);
-          }
+
+          users[socket.id] = user;
+          socket.join(user._id);
+          socket.emit(events.UPDATE, users);
+          nsp.emit(events.UPDATE, users);
         } catch (err) {
           console.log(err);
           return new AppError("Unauthorized", 401);
