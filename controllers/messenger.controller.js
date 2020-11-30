@@ -56,9 +56,13 @@ module.exports.getSingleConversation = catchAsync(async (req, res, next) => {
       messages: [],
     });
 
-    conversation = await Conversation.findById(conversation._id).populate(
-      "members"
-    );
+    conversation = await Conversation.findById(conversation._id).populate({
+      path: "members",
+      populate: {
+        path: "avatar",
+        select: "url",
+      },
+    });
 
     const members = Array.from(new Set(conversation.members));
 
