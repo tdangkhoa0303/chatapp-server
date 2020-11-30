@@ -4,6 +4,7 @@ const Post = require("../models/post.model");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { getNotifications } = require("../factory");
+const { pushNotification } = require("../utils/user.utils");
 
 module.exports.addComment = catchAsync(async (req, res, next) => {
   try {
@@ -25,14 +26,17 @@ module.exports.addComment = catchAsync(async (req, res, next) => {
     await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
     // Add new notification to post's author
-    console.log(authorId !== post.author.toString());
     if (authorId !== post.author.toString()) {
-      await Notification.create({
+      const data = {
         to: post.author,
         author: authorId,
         action: `commented: ${comment.content}`,
         path: post._id,
-      });
+      };
+
+      const io = res.locals.io;
+
+      pushNotification(io, data);
     }
 
     res.status(201).json({

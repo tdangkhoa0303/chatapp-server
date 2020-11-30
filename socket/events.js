@@ -5,4 +5,5 @@ module.exports = {
   MESSAGE: "message",
   UPDATE: "update",
   AUTHENTICATE: "authenticate",
+  NOTIFY: "notify",
 };

@@ -1,6 +1,7 @@
 const { request } = require("express");
 const mongoose = require("mongoose");
-const { on } = require("./user.model");
+const Socket = require("../socket");
+const events = require("../socket/events");
 
 const NotificationSchema = new mongoose.Schema(
   {

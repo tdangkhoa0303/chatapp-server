@@ -13,6 +13,7 @@ module.exports.getPosts = (page, author) => {
   const query = {};
   if (author) query.author = author;
   return Post.find(query)
+    .sort({ _id: -1 })
     .limit(10)
     .skip((page - 1) * perPage)
     .populate([
@@ -40,6 +41,7 @@ module.exports.getPosts = (page, author) => {
 
 module.exports.getNotifications = async (user, page = 1) => {
   return Notification.find({ to: user._id })
+    .sort({ _id: -1 })
     .populate({
       path: "author",
       select: "fullName _id nickName avatar firstName lastName",

@@ -37,6 +37,9 @@ app.use(
   })
 );
 
+const server = app.listen(PORT, () => console.log(`Hello from ${PORT}`));
+const io = Socket.initialize(server);
+
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -45,14 +48,16 @@ mongoose.connect(process.env.MONGO_URL, {
   dbName: "Chatapp",
 });
 
-const server = app.listen(PORT, () => console.log(`Hello from ${PORT}`));
-Socket.initialize(server);
+const useSocket = (req, res, next) => {
+  res.locals.io = io;
+  next();
+};
 
 app.use("/auth", authRoute);
 app.use("/messenger", isAuth, messengerRoute);
 app.use("/user", isAuth, userRoute);
-app.use("/post", isAuth, postRoute);
-app.use("/social", isAuth, socialRoute);
+app.use("/post", isAuth, useSocket, postRoute);
+app.use("/social", isAuth, useSocket, socialRoute);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

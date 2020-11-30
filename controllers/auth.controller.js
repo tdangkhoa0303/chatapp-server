@@ -65,11 +65,12 @@ module.exports.logIn = catchAsync(async (req, res, next) => {
 });
 
 module.exports.refreshToken = catchAsync(async (req, res, next) => {
-  let { refreshToken } = await Token.findOne({
+  let token = await Token.findOne({
     refreshToken: req.signedCookies.refreshToken,
   });
 
-  if (refreshToken) {
+  if (token) {
+    const { refreshToken } = token;
     const { data } = await verifyToken(refreshToken, refreshTokenSecret);
 
     await Token.findOneAndRemove({ refreshToken });
@@ -93,36 +94,32 @@ const setToken = async (res, user) => {
 
   await Token.create({ refreshToken, accessToken });
 
-  try {
-    const [notifications, conversations] = await Promise.all([
-      getNotifications(user),
-      getConversations(user),
-    ]);
+  const [notifications, conversations] = await Promise.all([
+    getNotifications(user),
+    getConversations(user),
+  ]);
 
-    const cookieOptions = {
-      maxAge: process.env.REFRESH_TOKEN_LIFE,
-      ...(Boolean(process.env.LOCAL) ? {} : { sameSite: "none", secure: true }),
-    };
+  const cookieOptions = {
+    maxAge: process.env.REFRESH_TOKEN_LIFE,
+    ...(Boolean(process.env.LOCAL) ? {} : { sameSite: "none", secure: true }),
+  };
 
-    res.cookie("refreshToken", refreshToken, {
-      ...cookieOptions,
-      signed: true,
-      httpOnly: true,
-    });
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieOptions,
+    signed: true,
+    httpOnly: true,
+  });
 
-    return res.status(200).json({
-      status: "success",
-      data: {
-        user: {
-          ...basicDetails(user),
-          token: accessToken,
-        },
-        refreshTTL: process.env.REFRESH_TOKEN_LIFE,
-        notifications,
-        conversations,
+  return res.status(200).json({
+    status: "success",
+    data: {
+      user: {
+        ...basicDetails(user),
+        token: accessToken,
       },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+      refreshTTL: process.env.REFRESH_TOKEN_LIFE,
+      notifications,
+      conversations,
+    },
+  });
 };

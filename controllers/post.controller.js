@@ -6,6 +6,7 @@ const AppError = require("../utils/AppError");
 const { uploadImage } = require("../utils/media.utils");
 const mongoose = require("mongoose");
 const factory = require("../factory");
+const { pushNotification } = require("../utils/user.utils");
 
 module.exports.getPosts = catchAsync(async (req, res, next) => {
   try {
@@ -101,15 +102,21 @@ module.exports.reactPost = catchAsync(async (req, res, next) => {
       likes.push(user._id);
 
       // Add new notification to post's author
-      if (user._id !== post.author.toString())
-        await Notification.create({
+      if (user._id !== post.author.toString()) {
+        // Push notification to uset
+        const data = {
           to: post.author,
           author: user._id,
           action: "liked your post.",
           path: post._id,
-        });
+        };
+
+        const io = res.locals.io;
+
+        pushNotification(io, data);
+      }
     }
-    console.log(likes);
+
     await Post.findByIdAndUpdate(postId, {
       likes,
     });

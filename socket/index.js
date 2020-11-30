@@ -17,10 +17,8 @@ const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
 let users = {};
 
-let io;
-
 const initialize = (server) => {
-  io = socketIO(server, {
+  const io = socketIO(server, {
     cors: {
       origin: true,
       credentials: true,
@@ -50,11 +48,11 @@ const initialize = (server) => {
           if (!user) return;
 
           socket.auth = true;
-          socket.userId = user._id;
+          socket.userId = user._id.toString();
           // Restore authenticated socket to its namespace
 
-          users[socket.id] = user;
-          socket.join(user._id);
+          users[user._id] = user;
+          socket.join(user._id.toString());
           socket.emit(events.UPDATE, users);
           nsp.emit(events.UPDATE, users);
         } catch (err) {
@@ -78,12 +76,13 @@ const initialize = (server) => {
 
         conversation = await Conversation.findByIdAndUpdate(conversationId, {
           $push: { messages: newMessage },
+          $set: { seen: false },
         });
 
         conversation.members.forEach((member) => {
-          member !== socket.userId &&
+          member._id !== socket.userId &&
             socket
-              .to(member)
+              .to(member._id.toString())
               .emit(events.MESSAGE, { conversationId, message: newMessage });
         });
       } catch (err) {
@@ -93,9 +92,11 @@ const initialize = (server) => {
 
     socket.on(events.DISCONNECT, () => {
       delete users[socket.id];
+
       nsp.emit(events.UPDATE, users);
     });
   });
+  return io;
 };
 
-module.exports = { io, initialize };
+module.exports = { initialize };
