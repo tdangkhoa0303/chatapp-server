@@ -27,27 +27,8 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
 module.exports.getPost = catchAsync(async (req, res, next) => {
   const { id } = req.query;
 
-  const post = await Post.findById(id).populate([
-    {
-      path: "images",
-      select: "url",
-    },
-    {
-      path: "comments",
-      populate: {
-        path: "author",
-        select: "fullName _id nickName avatar firstName lastName",
-      },
-    },
-    {
-      path: "author",
-      select: "fullName _id nickName avatar firstName lastName",
-      populate: {
-        path: "avatar",
-        select: "url",
-      },
-    },
-  ]);
+  const post = await factory.getPostById(id);
+
   res.status(200).json({
     status: "success",
     data: {
@@ -71,12 +52,14 @@ module.exports.createPost = catchAsync(async (req, res, next) => {
   // Validate comment content
   if (!caption) return new AppError("Invalid post", 400);
 
-  const post = await Post.create({
+  let post = await Post.create({
     id: id,
     caption: caption,
     author: user._id,
     images: medias,
   });
+
+  post = await factory.getPostById(post._id);
 
   res.status(201).json({
     status: "success",

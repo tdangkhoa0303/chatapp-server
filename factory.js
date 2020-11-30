@@ -39,8 +39,31 @@ module.exports.getPosts = (page, author) => {
     ]);
 };
 
-module.exports.getNotifications = async (user, page = 1) => {
-  return Notification.find({ to: user._id })
+module.exports.getPostById = (id) =>
+  Post.findById(id).populate([
+    {
+      path: "images",
+      select: "url",
+    },
+    {
+      path: "comments",
+      populate: {
+        path: "author",
+        select: "fullName _id nickName avatar firstName lastName",
+      },
+    },
+    {
+      path: "author",
+      select: "fullName _id nickName avatar firstName lastName",
+      populate: {
+        path: "avatar",
+        select: "url",
+      },
+    },
+  ]);
+
+module.exports.getNotifications = (user, page = 1) =>
+  Notification.find({ to: user._id })
     .sort({ _id: -1 })
     .populate({
       path: "author",
@@ -52,10 +75,9 @@ module.exports.getNotifications = async (user, page = 1) => {
     })
     .limit(10)
     .skip((page - 1) * perPage);
-};
 
-module.exports.getConversations = (user, page = 1) => {
-  return Conversation.find({
+module.exports.getConversations = (user, page = 1) =>
+  Conversation.find({
     members: user._id,
   })
     .limit(perPage)
@@ -72,8 +94,6 @@ module.exports.getConversations = (user, page = 1) => {
       },
       { path: "messages" },
     ]);
-};
-
 module.exports.queryUser = (q) => {
   let query = {};
   if (ObjectId.isValid(q)) {
