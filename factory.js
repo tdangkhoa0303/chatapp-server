@@ -2,7 +2,6 @@ const Post = require("./models/post.model");
 const User = require("./models/user.model");
 const Notification = require("./models/notification.model");
 const Conversation = require("./models/conversation.model");
-const { query } = require("express");
 
 const perPage = process.env.PER_PAGE || 10;
 

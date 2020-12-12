@@ -16,33 +16,36 @@ const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 module.exports.signUp = catchAsync(async (req, res, next) => {
-  let { email, lastName, firstName, password, bio, nickName } = req.body;
-  const saltRounds = 10;
+  try {
+    let { email, lastName, firstName, password, bio, nickName } = req.body;
+    const saltRounds = 10;
 
-  const path = req.file.path;
+    let media;
 
-  const media = await uploadImage(path, "avatars");
+    if (req.file) {
+      const path = req.file.path;
+      media = await uploadImage(path, "avatars");
 
-  const fs = require("fs");
-  fs.unlinkSync(path);
+      const fs = require("fs");
+      fs.unlinkSync(path);
+    }
 
-  password = await bcrypt.hash(password, saltRounds);
-  const user = await User.create({
-    email,
-    lastName,
-    firstName,
-    password,
-    bio,
-    nickName,
-    avatar: media._id,
-  });
+    const prepareUser = { email, lastName, firstName, password, bio, nickName };
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      user: basicDetails(user),
-    },
-  });
+    if (media) prepareUser.avatar = media._id;
+
+    password = await bcrypt.hash(password, saltRounds);
+    const user = await User.create(prepareUser);
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        user: basicDetails(user),
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 module.exports.logIn = catchAsync(async (req, res, next) => {
