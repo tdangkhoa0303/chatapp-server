@@ -30,12 +30,12 @@ module.exports.signUp = catchAsync(async (req, res, next) => {
       fs.unlinkSync(path);
     }
 
+    password = await bcrypt.hash(password, saltRounds);
+    const user = await User.create(prepareUser);
+
     const prepareUser = { email, lastName, firstName, password, bio, nickName };
 
     if (media) prepareUser.avatar = media._id;
-
-    password = await bcrypt.hash(password, saltRounds);
-    const user = await User.create(prepareUser);
 
     res.status(201).json({
       status: "success",
