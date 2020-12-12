@@ -32,7 +32,7 @@ app.use(express.static("./public"));
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.ORIGIN,
     credentials: true,
   })
 );
